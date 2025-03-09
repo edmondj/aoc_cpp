@@ -7,6 +7,8 @@
 function(add_aoc_day _NAME)
   cmake_parse_arguments(PARSE_ARGV 1 "" "" "" "SOURCES;LIBRARIES")
 
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_NAME}")
+
   add_executable(${_NAME})
 
   target_sources(${_NAME} PRIVATE ${_SOURCES})

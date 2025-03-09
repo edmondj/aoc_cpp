@@ -21,4 +21,7 @@ endif()
 
 add_subdirectory(aoc_lib)
 add_subdirectory(aoc_main)
-add_subdirectory(d01)
+
+foreach(day d01 d02)
+  add_aoc_day(${day} SOURCES ${day}.cpp)
+endforeach()

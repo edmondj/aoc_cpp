@@ -80,6 +80,11 @@
         "unordered_set": "cpp",
         "vector": "cpp",
         "xhash": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "any": "cpp",
+        "condition_variable": "cpp",
+        "csignal": "cpp",
+        "mutex": "cpp",
+        "variant": "cpp"
     }
 }
