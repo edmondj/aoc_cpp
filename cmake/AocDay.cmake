@@ -13,11 +13,14 @@ function(add_aoc_day _NAME)
 
   target_link_libraries(${_NAME} PRIVATE aoc_lib aoc_main ${_LIBRARIES})
 
+  set(INPUT_SOURCE "${CMAKE_SOURCE_DIR}/inputs/${_NAME}.txt")
+  set(INPUT_DEST "$<TARGET_FILE_DIR:${_NAME}>/input.txt")
+
   add_custom_command(
     TARGET ${_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/input.txt"
-            "$<TARGET_FILE_DIR:${_NAME}>/input.txt")
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    COMMAND ${CMAKE_COMMAND} "-DSRC=${INPUT_SOURCE}" "-DDST=${INPUT_DEST}" -P
+            cmake/scripts/CopyIfExists.cmake)
 
   if(AOC_2018_BUILD_TESTING)
     find_package(GTest REQUIRED)
