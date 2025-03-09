@@ -1,0 +1,28 @@
+{
+    "version": 10,
+    "configurePresets": [
+        {
+            "name": "default"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "default",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
+                },
+                {
+                    "type": "build",
+                    "name": "default"
+                }
+            ]
+        }
+    ]
+}
