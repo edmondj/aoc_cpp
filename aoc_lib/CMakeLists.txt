@@ -5,8 +5,9 @@ find_package(CLI11 REQUIRED)
 target_sources(
   aoc_lib
   PUBLIC public/aoc_lib/input.hpp public/aoc_lib/day_trait.hpp
-         public/aoc_lib/string.hpp
-  PRIVATE src/input.cpp src/string.cpp)
+         public/aoc_lib/string.hpp public/aoc_lib/regex.hpp
+         public/aoc_lib/overload.hpp
+  PRIVATE src/input.cpp src/string.cpp src/regex.cpp)
 
 target_include_directories(aoc_lib PUBLIC public/)
 

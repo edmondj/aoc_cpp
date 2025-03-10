@@ -1,3 +1,4 @@
+#include <aoc_lib/regex.hpp>
 #include <aoc_lib/string.hpp>
 
 #include <cstdint>
@@ -24,12 +25,8 @@ struct d03 {
             std::views::transform([](std::string_view line) {
               static const auto re =
                   std::regex(R"(^#(\d+) @ (\d+),(\d+): (\d+)x(\d+)$)");
-              std::match_results<std::string_view::const_iterator> match;
 
-              if (!std::regex_match(line.begin(), line.end(), match, re)) {
-                throw std::runtime_error(
-                    std::format("Invalid format for claim: {}", line));
-              }
+              aoc::svmatch match = *aoc::regex_match(line, re);
               return claim{.id = *aoc::from_chars<uint64_t>(match[1].str()),
                            .x = *aoc::from_chars<uint64_t>(match[2].str()),
                            .y = *aoc::from_chars<uint64_t>(match[3].str()),
