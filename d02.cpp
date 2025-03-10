@@ -12,11 +12,7 @@ struct d02 {
   using input = std::vector<std::string_view>;
 
   static input convert(const std::string &input) {
-    return std::vector{std::from_range,
-                       std::views::split(aoc::trimmed(input), '\n') |
-                           std::views::transform([](const auto &subrange) {
-                             return aoc::trimmed(std::string_view(subrange));
-                           })};
+    return std::vector{std::from_range, aoc::lines(aoc::trimmed(input))};
   }
 
   static uint64_t part1(const input &input) {
