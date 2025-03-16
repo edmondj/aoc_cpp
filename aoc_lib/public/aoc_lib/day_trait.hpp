@@ -6,42 +6,83 @@
 namespace aoc {
 
 template <typename Trait>
-auto convert(const aoc::arguments &args) -> decltype(auto) {
-  if constexpr (requires { Trait::convert(args); }) {
-    return Trait::convert(args);
-  } else {
-    return args;
-  }
+auto convert(const aoc::arguments &args) -> const aoc::arguments & {
+  return args;
+}
+
+template <typename Trait>
+auto convert(const aoc::arguments &args) -> decltype(auto)
+  requires requires { Trait::convert(args); }
+{
+  return Trait::convert(args);
 }
 
 template <typename T>
-concept day_trait =
+concept day_with_part1 =
     requires(const aoc::arguments &args) { T::part1(convert<T>(args)); };
 
 template <typename T>
-concept day_with_part2 = day_trait<T> && requires(const aoc::arguments &args) {
-  T::part2(convert<T>(args));
+concept day_with_part2 =
+    day_with_part1<T> &&
+    requires(const aoc::arguments &args) { T::part2(convert<T>(args)); };
+
+template <typename T>
+concept day_with_run =
+    requires(const aoc::arguments &args) { T::run(convert<T>(args)); };
+
+template <typename T>
+concept day_trait = day_with_part1<T> || day_with_run<T>;
+
+template <typename T>
+concept day_run_result = requires(T t) {
+  std::get<0>(t);
+  std::get<1>(t);
 };
+
+template <day_with_part1 Trait> auto part1(const aoc::arguments &args) {
+  return Trait::part1(convert<Trait>(args));
+}
+
+template <day_with_run Trait> auto part1(const aoc::arguments &args) {
+  auto res = Trait::run(convert<Trait>(args));
+  static_assert(day_run_result<decltype(res)>,
+                "Result of run must be a tuple like type of size >= 2");
+  return std::get<0>(res);
+}
+
+template <day_with_part2 Trait> auto part2(const aoc::arguments &args) {
+  return Trait::part2(convert<Trait>(args));
+}
+
+template <day_with_run Trait> auto part2(const aoc::arguments &args) {
+  auto res = Trait::run(convert<Trait>(args));
+  static_assert(day_run_result<decltype(res)>,
+                "Result of run must be a tuple like type of size >= 2");
+  return std::get<1>(res);
+}
 
 template <day_trait Trait>
 void execute_day(const aoc::arguments &args,
                  std::output_iterator<const char &> auto out) {
-  decltype(auto) input = convert<Trait>(args);
   if (args.selected_part) {
     switch (*args.selected_part) {
     case part::one:
-      std::format_to(out, "{}", Trait::part1(input));
+      std::format_to(out, "{}", part1<Trait>(args));
       break;
     case part::two:
-      if constexpr (day_with_part2<Trait>) {
-        std::format_to(out, "{}", Trait::part2(input));
+      if constexpr (requires { part2<Trait>(args); }) {
+        std::format_to(out, "{}", part2<Trait>(args));
         break;
       } else {
         throw std::runtime_error("Part 2 not implemented");
       }
     }
   } else {
-    if constexpr (day_with_part2<Trait>) {
+    decltype(auto) input = convert<Trait>(args);
+    if constexpr (day_with_run<Trait>) {
+      auto [part1, part2] = Trait::run(input);
+      std::format_to(out, "Part 1:\n{}\nPart 2:\n{}\n", part1, part2);
+    } else if constexpr (day_with_part2<Trait>) {
       std::format_to(out, "Part 1:\n{}\nPart 2:\n{}\n", Trait::part1(input),
                      Trait::part2(input));
     } else {

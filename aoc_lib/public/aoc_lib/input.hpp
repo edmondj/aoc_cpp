@@ -14,6 +14,7 @@ struct arguments {
   std::optional<std::string> expected_output;
 
   operator const std::string &() const { return input; }
+  operator std::string_view() const { return input; }
 };
 
 arguments parse_arguments(int argc, const char **argv,
