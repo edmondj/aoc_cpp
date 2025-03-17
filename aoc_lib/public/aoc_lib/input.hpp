@@ -15,6 +15,10 @@ struct arguments {
 
   operator const std::string &() const { return input; }
   operator std::string_view() const { return input; }
+
+  static arguments make_example(std::string input) {
+    return arguments{.input = std::move(input), .is_example = true};
+  }
 };
 
 arguments parse_arguments(int argc, const char **argv,
