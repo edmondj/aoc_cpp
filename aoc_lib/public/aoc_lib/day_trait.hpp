@@ -17,6 +17,10 @@ auto convert(const aoc::arguments &args) -> decltype(auto)
   return Trait::convert(args);
 }
 
+template <typename Trait>
+using converted_input =
+    decltype(convert<Trait>(std::declval<const aoc::arguments &>()));
+
 template <typename T>
 concept day_with_part1 =
     requires(const aoc::arguments &args) { T::part1(convert<T>(args)); };
@@ -39,26 +43,34 @@ concept day_run_result = requires(T t) {
   std::get<1>(t);
 };
 
-template <day_with_part1 Trait> auto part1(const aoc::arguments &args) {
-  return Trait::part1(convert<Trait>(args));
+template <day_with_part1 Trait> auto part1(converted_input<Trait> input) {
+  return Trait::part1(input);
 }
 
-template <day_with_run Trait> auto part1(const aoc::arguments &args) {
-  auto res = Trait::run(convert<Trait>(args));
+template <day_with_run Trait> auto part1(converted_input<Trait> input) {
+  auto res = Trait::run(input);
   static_assert(day_run_result<decltype(res)>,
                 "Result of run must be a tuple like type of size >= 2");
   return std::get<0>(res);
 }
 
-template <day_with_part2 Trait> auto part2(const aoc::arguments &args) {
-  return Trait::part2(convert<Trait>(args));
+template <typename Trait> auto part1(const aoc::arguments &args) {
+  return part1<Trait>(Trait::convert(args));
 }
 
-template <day_with_run Trait> auto part2(const aoc::arguments &args) {
-  auto res = Trait::run(convert<Trait>(args));
+template <day_with_part2 Trait> auto part2(converted_input<Trait> input) {
+  return Trait::part2(input);
+}
+
+template <day_with_run Trait> auto part2(converted_input<Trait> input) {
+  auto res = Trait::run(input);
   static_assert(day_run_result<decltype(res)>,
                 "Result of run must be a tuple like type of size >= 2");
   return std::get<1>(res);
+}
+
+template <typename Trait> auto part2(const aoc::arguments &args) {
+  return part2<Trait>(Trait::convert(args));
 }
 
 template <day_trait Trait>
