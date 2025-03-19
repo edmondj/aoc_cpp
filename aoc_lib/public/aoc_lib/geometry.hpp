@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <format>
 #include <ranges>
+#include <vector>
 
 namespace aoc {
 
@@ -10,7 +11,14 @@ namespace aoc {
 template <typename T> struct point2d {
   T x, y;
 
-  constexpr auto operator<=>(const point2d &) const = default;
+  [[nodiscard]] constexpr bool operator==(const point2d &) const = default;
+
+  template <typename U>
+  [[nodiscard]] constexpr operator point2d<U>() const
+    requires std::convertible_to<T, U>
+  {
+    return {.x = static_cast<U>(x), .y = static_cast<U>(y)};
+  }
 };
 
 template <typename T> constexpr bool is_point = false;
@@ -37,6 +45,44 @@ template <typename T> struct vec2d {
 template <typename T> auto amplitude(const vec2d<T> &v) {
   return std::sqrt(v.dx * v.dx + v.dy * v.dy);
 }
+
+template <typename T> class dyn_matrix2d {
+public:
+  dyn_matrix2d(size_t width, size_t height)
+      : m_width(width), m_data(width * height) {}
+
+  dyn_matrix2d(size_t width, size_t height, const T &init)
+      : m_width(width), m_data(width * height, init) {}
+
+  dyn_matrix2d(size_t width, size_t height, std::initializer_list<T> data)
+      : m_width(width), m_data(data) {
+    m_data.resize(width * height);
+  }
+
+  template <std::ranges::input_range R>
+  dyn_matrix2d(size_t width, size_t height, R &&data)
+    requires std::convertible_to<T, std::ranges::range_value_t<R>>
+      : m_width(width), m_data(std::from_range, std::forward<R>(data)) {
+    m_data.resize(width * height);
+  }
+
+  template <typename Self>
+  constexpr auto &&operator[](this Self &&self, const point2d<size_t> &p) {
+    return std::forward<Self>(self).at(p);
+  }
+
+  template <typename Self>
+  constexpr auto &&at(this Self &&self, const point2d<size_t> &p) {
+    return std::forward<Self>(self).m_data[p.y * self.m_width + p.x];
+  }
+
+  size_t width() const { return m_width; }
+  size_t height() const { return m_data.size() / width(); }
+
+private:
+  size_t m_width = 0;
+  std::vector<T> m_data;
+};
 
 // point / point operators
 template <typename T, typename U>
