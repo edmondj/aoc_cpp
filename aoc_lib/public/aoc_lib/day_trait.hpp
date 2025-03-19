@@ -54,7 +54,10 @@ template <day_with_run Trait> auto part1(converted_input<Trait> input) {
   return std::get<0>(res);
 }
 
-template <typename Trait> auto part1(const aoc::arguments &args) {
+template <typename Trait>
+auto part1(const aoc::arguments &args)
+  requires requires { part1<Trait>(Trait::convert(args)); }
+{
   return part1<Trait>(Trait::convert(args));
 }
 
@@ -69,7 +72,10 @@ template <day_with_run Trait> auto part2(converted_input<Trait> input) {
   return std::get<1>(res);
 }
 
-template <typename Trait> auto part2(const aoc::arguments &args) {
+template <typename Trait>
+auto part2(const aoc::arguments &args)
+  requires requires { part2<Trait>(Trait::convert(args)); }
+{
   return part2<Trait>(Trait::convert(args));
 }
 
