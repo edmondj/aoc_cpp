@@ -97,6 +97,13 @@ public:
     return point<decltype(values)::value_type, M>(std::move(values));
   }
 
+  template <typename U>
+  friend constexpr auto operator*(const fixed_matrix<U, M, M> &l,
+                                  const vector &r) {
+    auto values = l * r.matrix();
+    return vector<decltype(values)::value_type, M>(std::move(values));
+  }
+
 private:
   matrix_type m_matrix;
 };
@@ -117,6 +124,12 @@ template <typename T, std::size_t M, typename U>
 auto operator-(const point<T, M> &l, const point<U, M> &r) {
   auto values = l.matrix() - r.matrix();
   return vector<decltype(values)::value_type, M>(std::move(values));
+}
+
+template <typename T, std::size_t M, typename U>
+point<T, M> &operator+=(point<T, M> &l, const vector<U, M> &r) {
+  l.matrix() += r.matrix();
+  return l;
 }
 
 template <typename T, std::size_t M, typename U>

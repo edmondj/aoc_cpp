@@ -1,12 +1,13 @@
 #pragma once
 
 #include <aoc_lib/geometry/dimensions.hpp>
+#include <aoc_lib/geometry/scalar.hpp>
 
 #include <algorithm>
 #include <array>
 
 namespace aoc {
-template <typename T, std::size_t M, std::size_t N> class fixed_matrix {
+template <scalar T, std::size_t M, std::size_t N> class fixed_matrix {
 public:
   using array_type = std::array<T, M * N>;
   using value_type = T;
@@ -14,28 +15,34 @@ public:
   constexpr fixed_matrix() = default;
   constexpr fixed_matrix(const fixed_matrix &) = default;
   constexpr fixed_matrix(fixed_matrix &&) = default;
-  constexpr fixed_matrix(std::initializer_list<T> init) {
-    std::ranges::copy_n(init.begin(), std::min(init.size(), m_values.size()),
-                        m_values.begin());
+  template <std::ranges::sized_range R>
+  constexpr fixed_matrix(std::from_range_t, R &&r) {
+    std::ranges::copy_n(std::ranges::begin(r),
+                        std::min(std::ranges::size(r), m_data.size()),
+                        m_data.begin());
   }
-  constexpr fixed_matrix(const array_type &values) : m_values(values) {}
-  constexpr fixed_matrix(array_type &&values) : m_values(std::move(values)) {}
+  constexpr fixed_matrix(std::initializer_list<T> init)
+      : fixed_matrix(std::from_range, init) {}
+  constexpr fixed_matrix(const array_type &values) : m_data(values) {}
+  constexpr fixed_matrix(array_type &&values) : m_data(std::move(values)) {}
 
   constexpr fixed_matrix &operator=(const fixed_matrix &) = default;
   constexpr fixed_matrix &operator=(fixed_matrix &&) = default;
 
   constexpr bool operator==(const fixed_matrix &) const = default;
 
+  const array_type &data() const { return m_data; }
+
   template <typename F>
   constexpr auto transform(F &&func) const
       -> fixed_matrix<std::invoke_result_t<F, const T &>, M, N> {
     using U = std::invoke_result_t<F, const T &>;
     typename fixed_matrix<U, M, N>::array_type result;
-    std::ranges::transform(m_values, result.begin(), std::forward<F>(func));
+    std::ranges::transform(m_data, result.begin(), std::forward<F>(func));
     return fixed_matrix<U, M, N>(std::move(result));
   }
 
-  template <typename U>
+  template <scalar U>
   constexpr operator fixed_matrix<U, M, N>() const
     requires std::convertible_to<T, U>
   {
@@ -44,7 +51,7 @@ public:
 
   template <typename Self>
   constexpr auto &&at(this Self &&self, std::size_t m, std::size_t n) {
-    return std::forward_like<Self>(self.m_values[m * N + n]);
+    return std::forward_like<Self>(self.m_data[m * N + n]);
   }
 
   template <typename Self>
@@ -52,63 +59,56 @@ public:
     return std::forward<Self>(self).at(m, n);
   }
 
-  template <typename U>
+  static constexpr fixed_matrix identity()
+    requires(M == N && std::convertible_to<int, T>)
+  {
+    fixed_matrix result{};
+    for (size_t i = 0; i < M; ++i) {
+      result.at(i, i) = 1;
+    }
+    return result;
+  }
+
+  template <scalar U>
   friend constexpr auto operator*(const fixed_matrix &l, const U &r) {
-    using Res = decltype(l.at(0, 0) * r);
-    fixed_matrix<Res, M, N> result;
-
-    for (size_t m = 0; m < M; ++m) {
-      for (size_t n = 0; n < N; ++n) {
-        result.at(m, n) = l.at(m, n) * r;
-      }
-    }
-
-    return result;
+    return l.transform([&r](const T &l) { return l * r; });
   }
 
-  template <typename U>
-  friend constexpr auto operator/(const fixed_matrix &l, const U &r) {
-    using Res = decltype(l.at(0, 0) / r);
-    fixed_matrix<Res, M, N> result;
-
-    for (size_t m = 0; m < M; ++m) {
-      for (size_t n = 0; n < N; ++n) {
-        result.at(m, n) = l.at(m, n) / r;
-      }
-    }
-
-    return result;
-  }
-  template <typename U>
+  template <scalar U>
   friend constexpr auto operator*(const U &l, const fixed_matrix &r) {
-    using Res = decltype(l * r.at(0, 0));
-    fixed_matrix<Res, M, N> result;
-
-    for (size_t m = 0; m < M; ++m) {
-      for (size_t n = 0; n < N; ++n) {
-        result.at(m, n) = l * r.at(m, n);
-      }
-    }
-
-    return result;
+    return r.transform([&l](const T &r) { return l * r; });
   }
 
-  template <typename U>
+  template <scalar U>
+  friend constexpr auto operator/(const fixed_matrix &l, const U &r) {
+    return l.transform([&r](const T &l) { return l / r; });
+  }
+
+  template <scalar U>
   friend constexpr auto operator+(const fixed_matrix &l,
                                   const fixed_matrix<U, M, N> &r) {
-    using Res = decltype(l.at(0, 0) + r.at(0, 0));
-    fixed_matrix<Res, M, N> result;
-
-    for (size_t m = 0; m < M; ++m) {
-      for (size_t n = 0; n < N; ++n) {
-        result.at(m, n) = l.at(m, n) + r.at(m, n);
-      }
-    }
-
-    return result;
+    auto range = std::views::zip(l.data(), r.data()) |
+                 std::views::transform([]<typename Tuple>(Tuple &&t) {
+                   return std::get<0>(std::forward<Tuple>(t)) +
+                          std::get<1>(std::forward<Tuple>(t));
+                 });
+    return fixed_matrix<std::ranges::range_value_t<decltype(range)>, M, N>(
+        std::from_range, std::move(range));
   }
 
-  template <typename U>
+  template <scalar U>
+  friend constexpr auto operator-(const fixed_matrix &l,
+                                  const fixed_matrix<U, M, N> &r) {
+    auto range = std::views::zip(l.data(), r.data()) |
+                 std::views::transform([]<typename Tuple>(Tuple &&t) {
+                   return std::get<0>(std::forward<Tuple>(t)) -
+                          std::get<1>(std::forward<Tuple>(t));
+                 });
+    return fixed_matrix<std::ranges::range_value_t<decltype(range)>, M, N>(
+        std::from_range, std::move(range));
+  }
+
+  template <scalar U>
   friend constexpr fixed_matrix operator+=(fixed_matrix &l,
                                            const fixed_matrix<U, M, N> &r) {
     for (size_t m = 0; m < M; ++m) {
@@ -119,22 +119,7 @@ public:
     return l;
   }
 
-  template <typename U>
-  friend constexpr auto operator-(const fixed_matrix &l,
-                                  const fixed_matrix<U, M, N> &r) {
-    using Res = decltype(l.at(0, 0) - r.at(0, 0));
-    fixed_matrix<Res, M, N> result;
-
-    for (size_t m = 0; m < M; ++m) {
-      for (size_t n = 0; n < N; ++n) {
-        result.at(m, n) = l.at(m, n) - r.at(m, n);
-      }
-    }
-
-    return result;
-  }
-
-  template <typename U>
+  template <scalar U>
   friend constexpr fixed_matrix operator-=(fixed_matrix &l,
                                            const fixed_matrix<U, M, N> &r) {
     for (size_t m = 0; m < M; ++m) {
@@ -145,8 +130,26 @@ public:
     return l;
   }
 
+  template <scalar U, std::size_t P>
+  friend constexpr auto operator*(const fixed_matrix &l,
+                                  const fixed_matrix<U, N, P> &r) {
+    using MulRes = decltype(std::declval<T>() * std::declval<U>());
+    using Res = decltype(std::declval<MulRes>() + std::declval<MulRes>());
+    fixed_matrix<Res, M, P> result{};
+
+    for (size_t i = 0; i < M; ++i) {
+      for (size_t j = 0; j < P; ++j) {
+        for (size_t k = 0; k < N; ++k) {
+          result.at(i, j) += l.at(i, k) * r.at(k, j);
+        }
+      }
+    }
+
+    return result;
+  }
+
 private:
-  array_type m_values;
+  array_type m_data;
 };
 
 template <typename T> using matrix2d = fixed_matrix<T, 2, 2>;

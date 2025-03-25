@@ -10,6 +10,7 @@ target_sources(
          public/aoc_lib/regex.hpp
          public/aoc_lib/overload.hpp
          public/aoc_lib/algorithm.hpp
+         public/aoc_lib/geometry/scalar.hpp
          public/aoc_lib/geometry/dimensions.hpp
          public/aoc_lib/geometry/fixed_matrix.hpp
          public/aoc_lib/geometry/dyn_matrix.hpp

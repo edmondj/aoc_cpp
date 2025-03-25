@@ -17,6 +17,11 @@ public:
     m_data.resize(width * height);
   }
 
+  dyn_matrix(size_t width, size_t height, std::vector<T> data)
+      : m_width(width), m_data(std::move(data)) {
+    m_data.resize(width * height);
+  }
+
   template <std::ranges::input_range R>
   dyn_matrix(size_t width, size_t height, R &&data)
     requires std::convertible_to<T, std::ranges::range_value_t<R>>
