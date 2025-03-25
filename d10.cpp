@@ -1,3 +1,4 @@
+#include <aoc_lib/algorithm.hpp>
 #include <aoc_lib/day_trait.hpp>
 #include <aoc_lib/geometry.hpp>
 #include <aoc_lib/regex.hpp>
@@ -10,7 +11,7 @@
 
 struct star {
   aoc::point2d<int64_t> position;
-  aoc::vec2d<int64_t> velocity;
+  aoc::vector2d<int64_t> velocity;
 };
 
 using data = std::vector<star>;
@@ -24,11 +25,10 @@ struct d10 {
           static const auto re = std::regex(
               R"(^position=<\s*(-?\d+), \s*(-?\d+)> velocity=<\s*(-?\d+), \s*(-?\d+)>$)");
           auto match = *aoc::regex_match(line, re);
-          return star{
-              .position = {.x = *aoc::from_chars<int64_t>(match.str(1)),
-                           .y = *aoc::from_chars<int64_t>(match.str(2))},
-              .velocity = {.dx = *aoc::from_chars<int64_t>(match.str(3)),
-                           .dy = *aoc::from_chars<int64_t>(match.str(4))}};
+          return star{.position = {*aoc::from_chars<int64_t>(match.str(1)),
+                                   *aoc::from_chars<int64_t>(match.str(2))},
+                      .velocity = {*aoc::from_chars<int64_t>(match.str(3)),
+                                   *aoc::from_chars<int64_t>(match.str(4))}};
         })};
   }
 
@@ -54,17 +54,16 @@ struct d10 {
     for (int64_t t = 1; t < max_iteraton; ++t) {
       auto [next_points, next_rms] = compute_points_rms(t);
       if (next_rms >= rms) {
-        aoc::vec2d<int64_t> slide_top_left{
-            .dx = std::numeric_limits<int64_t>::max(),
-            .dy = std::numeric_limits<int64_t>::max()};
-        aoc::point2d<int64_t> bottom_right{
-            .x = std::numeric_limits<int64_t>::min(),
-            .y = std::numeric_limits<int64_t>::min()};
+        aoc::vector2d<int64_t> slide_top_left{
+            std::numeric_limits<int64_t>::max(),
+            std::numeric_limits<int64_t>::max()};
+        aoc::point2d<int64_t> bottom_right{std::numeric_limits<int64_t>::min(),
+                                           std::numeric_limits<int64_t>::min()};
         for (const aoc::point2d<int64_t> &p : points) {
-          slide_top_left.dx = std::min(slide_top_left.dx, p.x);
-          slide_top_left.dy = std::min(slide_top_left.dy, p.y);
-          bottom_right.x = std::max(bottom_right.x, p.x);
-          bottom_right.y = std::max(bottom_right.y, p.y);
+          slide_top_left.dx() = std::min(slide_top_left.dx(), p.x());
+          slide_top_left.dy() = std::min(slide_top_left.dy(), p.y());
+          bottom_right.x() = std::max(bottom_right.x(), p.x());
+          bottom_right.y() = std::max(bottom_right.y(), p.y());
         }
         bottom_right -= slide_top_left;
         std::unordered_set<aoc::point2d<int64_t>> anchored_points;
@@ -75,9 +74,9 @@ struct d10 {
                            return p - slide_top_left;
                          }));
         std::string result;
-        result.reserve((bottom_right.x + 2) * (bottom_right.y + 1));
-        for (int64_t y = 0; y <= bottom_right.y; ++y) {
-          for (int64_t x = 0; x <= bottom_right.x; ++x) {
+        result.reserve((bottom_right.x() + 2) * (bottom_right.y() + 1));
+        for (int64_t y = 0; y <= bottom_right.y(); ++y) {
+          for (int64_t x = 0; x <= bottom_right.x(); ++x) {
             result.push_back(anchored_points.contains({x, y}) ? '#' : '.');
           }
           result.push_back('\n');

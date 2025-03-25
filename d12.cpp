@@ -31,14 +31,13 @@ template <plants R> uint8_t make_plant_matcher(R &&range) {
 constexpr size_t MAX_GENERATION_COUNT = 1000;
 
 template <plants R> int64_t score_plants(R &&range) {
-  return aoc::sum(range | std::views::enumerate |
-                  std::views::filter([](const auto &enumerated) {
-                    return std::get<1>(enumerated);
-                  }) |
-                  std::views::elements<0> |
-                  std::views::transform([](size_t idx) {
-                    return static_cast<int64_t>(idx) - MAX_GENERATION_COUNT * 2;
-                  }));
+  return *aoc::sum(
+      range | std::views::enumerate |
+      std::views::filter(
+          [](const auto &enumerated) { return std::get<1>(enumerated); }) |
+      std::views::elements<0> | std::views::transform([](size_t idx) {
+        return static_cast<int64_t>(idx) - MAX_GENERATION_COUNT * 2;
+      }));
 }
 
 struct d12 {

@@ -85,6 +85,7 @@
         "condition_variable": "cpp",
         "csignal": "cpp",
         "mutex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "random": "cpp"
     }
 }

@@ -43,21 +43,21 @@ struct d08 {
   }
 
   static size_t part1(const node &n) {
-    return aoc::sum(n.children | std::views::transform(&part1)) +
-           aoc::sum(n.metadata);
+    return *aoc::sum(n.children | std::views::transform(&part1)) +
+           *aoc::sum(n.metadata);
   }
 
   static size_t part2(const node &n) {
     if (n.children.empty()) {
-      return aoc::sum(n.metadata);
+      return *aoc::sum(n.metadata);
     }
-    return aoc::sum(n.metadata |
-                    std::views::transform([&n](size_t idx) -> size_t {
-                      if (idx == 0 || idx > n.children.size()) {
-                        return 0;
-                      }
-                      return part2(n.children[idx - 1]);
-                    }));
+    return *aoc::sum(n.metadata |
+                     std::views::transform([&n](size_t idx) -> size_t {
+                       if (idx == 0 || idx > n.children.size()) {
+                         return 0;
+                       }
+                       return part2(n.children[idx - 1]);
+                     }));
   }
 };
 
