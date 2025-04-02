@@ -2,7 +2,8 @@
     "version": 10,
     "configurePresets": [
         {
-            "name": "default"
+            "name": "default",
+            "binaryDir": "out"
         }
     ],
     "buildPresets": [
@@ -15,6 +16,11 @@
             "name": "release",
             "configurePreset": "default",
             "configuration": "Release"
+        },
+        {
+            "name": "release_with_debug_info",
+            "configurePreset": "default",
+            "configuration": "RelWithDebInfo"
         }
     ],
     "workflowPresets": [
@@ -41,6 +47,19 @@
                 {
                     "type": "build",
                     "name": "release"
+                }
+            ]
+        },
+        {
+            "name": "release_with_debug_info",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
+                },
+                {
+                    "type": "build",
+                    "name": "release_with_debug_info"
                 }
             ]
         }

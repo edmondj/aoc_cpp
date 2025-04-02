@@ -2,6 +2,7 @@
 
 #include <aoc_lib/algorithm.hpp>
 #include <aoc_lib/geometry/point.hpp>
+#include <aoc_lib/geometry/vector.hpp>
 
 #include <optional>
 #include <ranges>
@@ -17,18 +18,14 @@ template <std::ranges::input_range Points> auto centroid(Points &&points) {
       });
 }
 
-//   requires is_point<std::ranges::range_value_t<Points>>
-// {
-//   using Point = std::ranges::range_value_t<Points>;
-//   point_value_t<Point> x = {}, y = {}, size = {};
-//   for (const auto &point : points) {
-//     x += point.x;
-//     y += point.y;
-//     size += 1;
-//   }
-//   if (size == 0) {
-//     return std::nullopt;
-//   }
-//   return Point{.x = x / size, .y = y / size};
-// }
+template <scalar S, size_t M>
+S manhattan_distance(const vector<S, M> &vec)
+  requires std::is_integral_v<S>
+{
+  using std::abs;
+  return [&]<S... I>(std::integer_sequence<S, I...>) {
+    return (0 + ... + abs(vec.at(I)));
+  }(std::make_integer_sequence<S, M>());
+}
+
 } // namespace aoc

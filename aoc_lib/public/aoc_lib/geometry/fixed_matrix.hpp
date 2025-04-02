@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <array>
+#include <ranges>
 
 namespace aoc {
 template <scalar T, std::size_t M, std::size_t N> class fixed_matrix {

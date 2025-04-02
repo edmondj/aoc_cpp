@@ -33,7 +33,7 @@ function(add_aoc_day _NAME)
                                                  ${_LIBRARIES})
     target_compile_definitions(${_NAME}_tests PRIVATE -DTESTING)
 
-    gtest_discover_tests(${_NAME}_tests)
+    gtest_discover_tests(${_NAME}_tests NO_PRETTY_VALUES)
   endif()
 
 endfunction()

@@ -1,11 +1,15 @@
 #pragma once
 
+#include <aoc_lib/geometry/point.hpp>
+
 #include <vector>
 
 namespace aoc {
 
 template <typename T> class dyn_matrix {
 public:
+  dyn_matrix() : m_width(0) {}
+
   dyn_matrix(size_t width, size_t height)
       : m_width(width), m_data(width * height) {}
 
@@ -29,9 +33,22 @@ public:
     m_data.resize(width * height);
   }
 
+  constexpr bool contains(size_t m, size_t n) const {
+    return n < width() && m < height();
+  }
+
+  constexpr bool contains(const point2d<size_t> &p) const {
+    return contains(p.y(), p.x());
+  }
+
   template <typename Self>
   constexpr auto &&operator[](this Self &&self, size_t m, size_t n) {
     return std::forward<Self>(self).at(m, n);
+  }
+
+  template <typename Self>
+  constexpr auto &&operator[](this Self &&self, const point2d<size_t> &p) {
+    return std::forward<Self>(self).at(p.y(), p.x());
   }
 
   template <typename Self>
@@ -39,8 +56,13 @@ public:
     return std::forward<Self>(self).m_data[m * self.m_width + n];
   }
 
+  template <typename Self>
+  constexpr auto &&at(this Self &&self, const point2d<size_t> &p) {
+    return std::forward<Self>(self).at(p.y(), p.x());
+  }
+
   size_t width() const { return m_width; }
-  size_t height() const { return m_data.size() / width(); }
+  size_t height() const { return m_width > 0 ? m_data.size() / width() : 0; }
 
 private:
   size_t m_width = 0;

@@ -2,6 +2,8 @@
 
 #include <aoc_lib/geometry/fixed_matrix.hpp>
 
+#include <ranges>
+
 namespace aoc {
 template <typename T, std::size_t M> class point {
 public:
@@ -32,6 +34,13 @@ public:
   template <typename Self>
   constexpr auto &&operator[](this Self &&self, std::size_t m) {
     return std::forward<Self>(self).at(m);
+  }
+
+  template <scalar U>
+  constexpr operator point<U, M>() const
+    requires std::convertible_to<T, U>
+  {
+    return point<U, M>(m_matrix);
   }
 
   template <typename Self>
@@ -72,5 +81,19 @@ template <typename T, std::size_t M> struct std::hash<point<T, M>> {
     return std::hash<aoc::point<T, M>::matrix_type>{}(p.matrix());
   }
 };
+
+namespace views {
+template <scalar S> auto point2d_iota(S m, S M, S n, S N) {
+  return std::views::iota(m, m + M) | std::views::transform([n, N](S m) {
+           return std::views::iota(n, n + N) |
+                  std::views::transform([m](S n) { return point2d{m, n}; });
+         }) |
+         std::views::join;
+}
+
+template <scalar S> auto point2d_iota(S M, S N) {
+  return point2d_iota(S{}, M, S{}, N);
+}
+} // namespace views
 
 } // namespace aoc

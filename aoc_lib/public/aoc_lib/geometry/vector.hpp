@@ -104,6 +104,12 @@ public:
     return vector<decltype(values)::value_type, M>(std::move(values));
   }
 
+  template <scalar U>
+  friend constexpr auto operator-=(vector &l, const vector<U, M> &r) {
+    l.matrix() -= r.matrix();
+    return l;
+  }
+
 private:
   matrix_type m_matrix;
 };
