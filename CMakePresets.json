@@ -2,24 +2,28 @@
     "version": 10,
     "configurePresets": [
         {
-            "name": "default",
-            "binaryDir": "out"
+            "name": "debug",
+            "binaryDir": "out/debug"
+        },
+        {
+            "name": "release",
+            "binaryDir": "out/release"
         }
     ],
     "buildPresets": [
         {
             "name": "debug",
-            "configurePreset": "default",
+            "configurePreset": "debug",
             "configuration": "Debug"
         },
         {
             "name": "release",
-            "configurePreset": "default",
+            "configurePreset": "release",
             "configuration": "Release"
         },
         {
             "name": "release_with_debug_info",
-            "configurePreset": "default",
+            "configurePreset": "release",
             "configuration": "RelWithDebInfo"
         }
     ],
@@ -29,11 +33,11 @@
             "steps": [
                 {
                     "type": "configure",
-                    "name": "default"
+                    "name": "debug"
                 },
                 {
                     "type": "build",
-                    "name": "release"
+                    "name": "debug"
                 }
             ]
         },
@@ -42,7 +46,7 @@
             "steps": [
                 {
                     "type": "configure",
-                    "name": "default"
+                    "name": "release"
                 },
                 {
                     "type": "build",
@@ -55,7 +59,7 @@
             "steps": [
                 {
                     "type": "configure",
-                    "name": "default"
+                    "name": "release"
                 },
                 {
                     "type": "build",
