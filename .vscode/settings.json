@@ -86,6 +86,7 @@
         "csignal": "cpp",
         "mutex": "cpp",
         "variant": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "bitset": "cpp"
     }
 }

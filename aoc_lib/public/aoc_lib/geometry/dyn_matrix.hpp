@@ -42,22 +42,23 @@ public:
   }
 
   template <typename Self>
-  constexpr auto &&operator[](this Self &&self, size_t m, size_t n) {
+  constexpr decltype(auto) operator[](this Self &&self, size_t m, size_t n) {
     return std::forward<Self>(self).at(m, n);
   }
 
   template <typename Self>
-  constexpr auto &&operator[](this Self &&self, const point2d<size_t> &p) {
+  constexpr decltype(auto) operator[](this Self &&self,
+                                      const point2d<size_t> &p) {
     return std::forward<Self>(self).at(p.y(), p.x());
   }
 
   template <typename Self>
-  constexpr auto &&at(this Self &&self, size_t m, size_t n) {
-    return std::forward<Self>(self).m_data[m * self.m_width + n];
+  constexpr decltype(auto) at(this Self &&self, size_t m, size_t n) {
+    return std::forward_like<Self>(self.m_data[m * self.m_width + n]);
   }
 
   template <typename Self>
-  constexpr auto &&at(this Self &&self, const point2d<size_t> &p) {
+  constexpr decltype(auto) at(this Self &&self, const point2d<size_t> &p) {
     return std::forward<Self>(self).at(p.y(), p.x());
   }
 
