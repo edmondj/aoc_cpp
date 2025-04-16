@@ -2,6 +2,7 @@
 
 #include <aoc_lib/geometry/point.hpp>
 
+#include <ranges>
 #include <vector>
 
 namespace aoc {
@@ -64,6 +65,20 @@ public:
 
   size_t width() const { return m_width; }
   size_t height() const { return m_width > 0 ? m_data.size() / width() : 0; }
+
+  bool operator==(const dyn_matrix &r) const = default;
+
+  std::ranges::view auto data_view() const { return m_data | std::views::all; }
+
+  std::ranges::view auto enumerate() const {
+    return m_data | std::views::enumerate |
+           std::views::transform(
+               [width = m_width](std::tuple<size_t, const T &> t)
+                   -> std::tuple<point2d<size_t>, const T &> {
+                 size_t i = std::get<0>(t);
+                 return {point2d{i % width, i / width}, std::get<1>(t)};
+               });
+  }
 
 private:
   size_t m_width = 0;
