@@ -22,6 +22,9 @@ endif()
 add_subdirectory(aoc_lib)
 add_subdirectory(aoc_main)
 
+add_library(device STATIC device.hpp device.cpp)
+target_link_libraries(device PRIVATE aoc_lib)
+
 set(DAYS
     d01
     d02
@@ -40,8 +43,15 @@ set(DAYS
     d15
     d16
     d17
-    d18)
+    d18
+    d19)
 
 foreach(day ${DAYS})
   add_aoc_day(${day} SOURCES ${day}.cpp)
 endforeach()
+
+target_link_libraries(d16_tests PUBLIC device)
+target_link_libraries(d16 PUBLIC device)
+
+target_link_libraries(d19_tests PUBLIC device)
+target_link_libraries(d19 PUBLIC device)

@@ -6,32 +6,18 @@
 #include <bitset>
 #include <unordered_set>
 
-using value_t = int64_t;
-using registers_t = std::array<value_t, 4>;
-using instruction_t = std::array<value_t, 4>;
+#include "device.hpp"
 
-enum class opcode_t : uint8_t {
-  addr,
-  addi,
-  mulr,
-  muli,
-  banr,
-  bani,
-  borr,
-  bori,
-  setr,
-  seti,
-  gtir,
-  gtri,
-  gtrr,
-  eqir,
-  eqri,
-  eqrr
-};
+using device::evaluate;
+using device::instruction_t;
+using device::opcode_t;
+using device::value_t;
+using unknown_instruction_t = std::array<value_t, 4>;
+using registers_t = device::registers_t<4>;
 
 struct sample_t {
   registers_t before;
-  instruction_t instruction;
+  unknown_instruction_t instruction;
   registers_t after;
 };
 
@@ -86,45 +72,6 @@ private:
   std::bitset<16> flags;
 };
 
-value_t evaluate(opcode_t opcode, const instruction_t &inst,
-                 const registers_t &reg) {
-  switch (opcode) {
-  case opcode_t::addr:
-    return reg[inst[1]] + reg[inst[2]];
-  case opcode_t::addi:
-    return reg[inst[1]] + inst[2];
-  case opcode_t::mulr:
-    return reg[inst[1]] * reg[inst[2]];
-  case opcode_t::muli:
-    return reg[inst[1]] * inst[2];
-  case opcode_t::banr:
-    return reg[inst[1]] & reg[inst[2]];
-  case opcode_t::bani:
-    return reg[inst[1]] & inst[2];
-  case opcode_t::borr:
-    return reg[inst[1]] | reg[inst[2]];
-  case opcode_t::bori:
-    return reg[inst[1]] | inst[2];
-  case opcode_t::setr:
-    return reg[inst[1]];
-  case opcode_t::seti:
-    return inst[1];
-  case opcode_t::gtir:
-    return inst[1] > reg[inst[2]];
-  case opcode_t::gtri:
-    return reg[inst[1]] > inst[2];
-  case opcode_t::gtrr:
-    return reg[inst[1]] > reg[inst[2]];
-  case opcode_t::eqir:
-    return inst[1] == reg[inst[2]];
-  case opcode_t::eqri:
-    return reg[inst[1]] == inst[2];
-  case opcode_t::eqrr:
-    return reg[inst[1]] == reg[inst[2]];
-  }
-  std::unreachable();
-}
-
 opcode_candidates_t evaluate_candidates(const sample_t &sample) {
   opcode_candidates_t result;
 
@@ -133,8 +80,13 @@ opcode_candidates_t evaluate_candidates(const sample_t &sample) {
         opcode_t::banr, opcode_t::bani, opcode_t::borr, opcode_t::bori,
         opcode_t::setr, opcode_t::seti, opcode_t::gtir, opcode_t::gtri,
         opcode_t::gtrr, opcode_t::eqir, opcode_t::eqri, opcode_t::eqrr}) {
-    value_t expected = sample.after[sample.instruction[3]];
-    if (evaluate(op, sample.instruction, sample.before) == expected) {
+    registers_t reg = sample.before;
+    auto instruction = device::instruction_t{.opcode = op,
+                                             .args = {sample.instruction[1],
+                                                      sample.instruction[2],
+                                                      sample.instruction[3]}};
+    evaluate(instruction, reg);
+    if (reg == sample.after) {
       result.insert(op);
     }
   }
@@ -189,10 +141,10 @@ opcodes_t compute_opcodes(R &&range)
 
 struct data_t {
   std::vector<sample_t> samples;
-  std::vector<instruction_t> instructions;
+  std::vector<unknown_instruction_t> instructions;
 };
 
-instruction_t parse_instructions_from_match(const aoc::svmatch &match) {
+unknown_instruction_t parse_instructions_from_match(const aoc::svmatch &match) {
   return {*aoc::from_chars<value_t>(match.str(1)),
           *aoc::from_chars<value_t>(match.str(2)),
           *aoc::from_chars<value_t>(match.str(3)),
@@ -250,8 +202,10 @@ struct d16 {
 
     auto reg = registers_t{};
 
-    for (const instruction_t &inst : data.instructions) {
-      reg[inst[3]] = evaluate(opcodes[inst[0]], inst, reg);
+    for (const unknown_instruction_t &unknown : data.instructions) {
+      auto inst = instruction_t{.opcode = opcodes[unknown[0]],
+                                .args = {unknown[1], unknown[2], unknown[3]}};
+      evaluate(inst, reg);
     }
 
     return reg[0];
