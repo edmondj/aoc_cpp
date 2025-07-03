@@ -11,29 +11,15 @@
 using namespace device;
 using reg_t = registers_t<6>;
 
-struct program_t {
-  value_t ip = 0;
-  std::vector<instruction_t> instructions;
-};
-
 struct d19 {
   static program_t convert(std::string_view input) {
-    static const auto ip_regex = std::regex(R"(^#ip (\d)$)");
-
-    auto lines = aoc::lines(aoc::trimmed(input));
-    auto ip = *aoc::from_chars<value_t>(
-        aoc::regex_match(*lines.begin(), ip_regex)->str(1));
-    return program_t{
-        .ip = ip,
-        .instructions = std::vector{
-            std::from_range, lines | std::views::drop(1) |
-                                 std::views::transform(&parse_instruction)}};
+    return parse_program(input);
   }
 
   static value_t part1(const program_t &p) {
     auto regs = reg_t{};
     while (true) {
-      value_t &ip = regs[p.ip];
+      value_t &ip = regs[*p.ip];
       evaluate(p.instructions[ip], regs);
       if (ip < 0 || static_cast<size_t>(ip) >= p.instructions.size() - 1) {
         break;

@@ -45,7 +45,8 @@ set(DAYS
     d17
     d18
     d19
-    d20)
+    d20
+    d21)
 
 foreach(day ${DAYS})
   add_aoc_day(${day} SOURCES ${day}.cpp)
@@ -56,3 +57,6 @@ target_link_libraries(d16 PUBLIC device)
 
 target_link_libraries(d19_tests PUBLIC device)
 target_link_libraries(d19 PUBLIC device)
+
+target_link_libraries(d21_tests PUBLIC device)
+target_link_libraries(d21 PUBLIC device)

@@ -23,6 +23,23 @@ instruction_t parse_instruction(std::string_view s) {
   throw std::runtime_error("Unknown opcode");
 }
 
+program_t parse_program(std::string_view s) {
+  static const auto ip_regex = std::regex(R"(^#ip (\d)$)");
+  std::optional<size_t> ip;
+
+  auto lines = aoc::lines(aoc::trimmed(s));
+  auto first = lines.begin();
+  if (auto match = aoc::regex_match(*first, ip_regex)) {
+    ip = *aoc::from_chars<size_t>(match->str(1));
+    ++first;
+  }
+  return program_t{
+      .ip = ip,
+      .instructions = std::vector{
+          std::from_range, std::ranges::subrange(first, lines.end()) |
+                               std::views::transform(&parse_instruction)}};
+}
+
 std::string_view label_for(opcode_t op) {
   for (const auto &[o, label] : OPCODE_LABELS) {
     if (op == o) {

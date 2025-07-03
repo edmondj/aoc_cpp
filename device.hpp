@@ -2,8 +2,10 @@
 
 #include <array>
 #include <format>
+#include <optional>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace device {
 
@@ -43,6 +45,11 @@ constexpr std::pair<opcode_t, std::string_view> OPCODE_LABELS[] = {
 struct instruction_t {
   opcode_t opcode;
   std::array<value_t, 3> args;
+};
+
+struct program_t {
+  std::optional<size_t> ip;
+  std::vector<instruction_t> instructions;
 };
 
 template <size_t N>
@@ -87,6 +94,7 @@ void evaluate(const instruction_t &inst, registers_t<N> &reg) {
 }
 
 instruction_t parse_instruction(std::string_view s);
+program_t parse_program(std::string_view s);
 
 std::string_view label_for(opcode_t op);
 } // namespace device
@@ -99,7 +107,24 @@ template <typename Char> struct std::formatter<device::opcode_t, Char> {
   }
 
   template <class FmtContext>
-  FmtContext::iterator format(device::opcode_t opcode, FmtContext &ctx) const {
+  constexpr FmtContext::iterator format(device::opcode_t opcode,
+                                        FmtContext &ctx) const {
     return std::format_to(ctx.out(), "{}", device::label_for(opcode));
+  }
+};
+
+template <typename Char> struct std::formatter<device::instruction_t, Char> {
+
+  template <class ParseContext>
+  constexpr ParseContext::iterator parse(ParseContext &ctx) {
+    return ctx.begin();
+  }
+
+  template <class FmtContext>
+  constexpr FmtContext::iterator
+  format(const device::instruction_t &instruction, FmtContext &ctx) const {
+    return std::format_to(ctx.out(), "{} {} {} {}", instruction.opcode,
+                          instruction.args[0], instruction.args[1],
+                          instruction.args[2]);
   }
 };
