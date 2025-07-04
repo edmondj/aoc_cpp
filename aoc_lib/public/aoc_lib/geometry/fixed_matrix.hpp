@@ -2,6 +2,7 @@
 
 #include <aoc_lib/geometry/dimensions.hpp>
 #include <aoc_lib/geometry/scalar.hpp>
+#include <aoc_lib/hash.hpp>
 
 #include <algorithm>
 #include <array>
@@ -165,14 +166,14 @@ template <typename T, std::size_t M, std::size_t N>
 struct std::hash<fixed_matrix<T, M, N>> {
   size_t operator()(const aoc::fixed_matrix<T, M, N> &p) const noexcept {
     std::hash<T> hasher;
-    size_t hash = 0;
+    aoc::hash_accumulator acc;
 
     for (size_t m = 0; m < M; ++m) {
       for (size_t n = 0; n < N; ++n) {
-        hash ^= hasher(p.at(m, n)) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        acc.accumulate(hasher(p.at(m, n)));
       }
     }
-    return hash;
+    return acc.result();
   }
 };
 

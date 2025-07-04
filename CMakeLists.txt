@@ -46,7 +46,8 @@ set(DAYS
     d18
     d19
     d20
-    d21)
+    d21
+    d22)
 
 foreach(day ${DAYS})
   add_aoc_day(${day} SOURCES ${day}.cpp)

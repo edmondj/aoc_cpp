@@ -14,11 +14,12 @@ target_sources(
          public/aoc_lib/algorithm.hpp
          public/aoc_lib/day_trait.hpp
          public/aoc_lib/geometry.hpp
+         public/aoc_lib/hash.hpp
          public/aoc_lib/input.hpp
          public/aoc_lib/overload.hpp
          public/aoc_lib/regex.hpp
          public/aoc_lib/string.hpp
-  PRIVATE src/input.cpp src/string.cpp src/regex.cpp)
+  PRIVATE src/hash.cpp src/input.cpp src/string.cpp src/regex.cpp)
 
 target_include_directories(aoc_lib PUBLIC public/)
 

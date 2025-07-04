@@ -115,11 +115,11 @@ void execute_day(const aoc::arguments &args,
       auto [part1, part2] = Trait::run(input);
       print_part(out, 1, part1);
       print_part(out, 2, part2);
-    } else if constexpr (day_with_part2<Trait>) {
-      print_part(out, 1, part1<Trait>(args));
-      print_part(out, 2, part2<Trait>(args));
     } else {
-      print_part(out, 1, part1<Trait>(args));
+      print_part(out, 1, part1<Trait>(input));
+      if constexpr (day_with_part2<Trait>) {
+        print_part(out, 2, part2<Trait>(input));
+      }
     }
   }
   auto end = std::chrono::steady_clock::now();

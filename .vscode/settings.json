@@ -87,6 +87,7 @@
         "mutex": "cpp",
         "variant": "cpp",
         "random": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "generator": "cpp"
     }
 }
