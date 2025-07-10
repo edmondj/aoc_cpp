@@ -88,6 +88,8 @@
         "variant": "cpp",
         "random": "cpp",
         "bitset": "cpp",
-        "generator": "cpp"
+        "generator": "cpp",
+        "coroutine": "cpp",
+        "stack": "cpp"
     }
 }

@@ -115,16 +115,7 @@ private:
 };
 
 template <typename T> using vector2d = vector<T, 2>;
-
-template <typename T, std::size_t M_> struct dimensions<vector<T, M_>> {
-  static constexpr std::size_t M() { return M_; }
-};
-
-template <typename T, std::size_t M> struct std::hash<vector<T, M>> {
-  size_t operator()(const aoc::vector<T, M> &v) const noexcept {
-    return std::hash<aoc::vector<T, M>::matrix_type>{}(v.matrix());
-  }
-};
+template <typename T> using vector3d = vector<T, 3>;
 
 template <typename T, std::size_t M, typename U>
 auto operator-(const point<T, M> &l, const point<U, M> &r) {
@@ -156,6 +147,13 @@ constexpr auto amplitude(const vector<T, M> &v)
         return sqrt(std::forward<T>(value));
       })
       .value();
+}
+
+template <typename T, std::size_t M> constexpr auto abs(const vector<T, M> &v) {
+  return vector(v.matrix().transform([](const T &t) {
+    using std::abs;
+    return abs(t);
+  }));
 }
 
 } // namespace aoc

@@ -156,11 +156,25 @@ private:
 
 template <typename T> using matrix2d = fixed_matrix<T, 2, 2>;
 
+template <typename T> constexpr bool is_fixed_matrix = false;
+
+template <scalar T, std::size_t M, std::size_t N>
+constexpr bool is_fixed_matrix<fixed_matrix<T, M, N>> = true;
+
+template <typename T>
+concept matrix_convertible =
+    is_fixed_matrix<typename T::matrix_type> && requires(T t) {
+      { t.matrix() } -> std::convertible_to<typename T::matrix_type>;
+    };
+
 template <typename T, std::size_t M_, std::size_t N_>
 struct dimensions<fixed_matrix<T, M_, N_>> {
   static constexpr std::size_t M() { return M_; }
   static constexpr std::size_t N() { return N_; }
 };
+
+template <matrix_convertible T>
+struct dimensions<T> : dimensions<typename T::matrix_type> {};
 
 template <typename T, std::size_t M, std::size_t N>
 struct std::hash<fixed_matrix<T, M, N>> {
@@ -177,4 +191,37 @@ struct std::hash<fixed_matrix<T, M, N>> {
   }
 };
 
+template <matrix_convertible T>
+struct std::hash<T> : std::hash<typename T::matrix_type> {
+  size_t operator()(const T &t) const noexcept {
+    return std::hash<typename T::matrix_type>::operator()(t.matrix());
+  }
+};
+
+template <scalar S, size_t M, size_t N>
+struct std::tuple_size<fixed_matrix<S, M, N>>
+    : std::integral_constant<size_t, M * N> {};
+
+template <size_t I, scalar S, size_t M, size_t N>
+struct std::tuple_element<I, fixed_matrix<S, M, N>> {
+  using type = S;
+};
+
+template <matrix_convertible T>
+struct std::tuple_size<T> : std::tuple_size<typename T::matrix_type> {};
+
+template <size_t I, matrix_convertible T>
+struct std::tuple_element<I, T>
+    : std::tuple_element<I, typename T::matrix_type> {};
+
+template <size_t I, typename Self>
+  requires(is_fixed_matrix<Self> && I < std::tuple_size_v<Self>)
+constexpr auto &&get(Self &&self) {
+  using dim = dimensions<std::remove_cvref_t<Self>>;
+  return std::forward<Self>(self).at(I / dim::N(), I % dim::N());
+}
+
+template <size_t I, matrix_convertible Self> constexpr auto &&get(Self &&self) {
+  return get<I>(std::forward<Self>(self).matrix());
+}
 } // namespace aoc

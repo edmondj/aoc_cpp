@@ -5,7 +5,7 @@
 #include <ranges>
 
 namespace aoc {
-template <typename T, std::size_t M> class point {
+template <scalar T, std::size_t M> class point {
 public:
   using matrix_type = fixed_matrix<T, M, 1>;
   using value_type = matrix_type::value_type;
@@ -71,16 +71,15 @@ private:
 };
 
 template <typename T> using point2d = point<T, 2>;
+template <typename T> using point3d = point<T, 3>;
 
-template <typename T, std::size_t M_> struct dimensions<point<T, M_>> {
-  static constexpr std::size_t M() { return M_; }
-};
-
-template <typename T, std::size_t M> struct std::hash<point<T, M>> {
-  size_t operator()(const aoc::point<T, M> &p) const noexcept {
-    return std::hash<aoc::point<T, M>::matrix_type>{}(p.matrix());
-  }
-};
+template <scalar S, size_t M>
+S manhattan_distance(const point<S, M> &l, const point<S, M> &r) {
+  return [&l, &r]<size_t... I>(std::index_sequence<I...>) {
+    using std::abs;
+    return (S{} + ... + abs(r[I] - l[I]));
+  }(std::make_index_sequence<M>());
+}
 
 namespace views {
 template <scalar S> auto point2d_iota(S m, S M, S n, S N) {

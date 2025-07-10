@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(aoc_2018)
+project(aoc_2018 LANGUAGES CXX)
 
 option(AOC_2018_BUILD_TESTING "Build tests for the project" ON)
 
@@ -47,7 +47,8 @@ set(DAYS
     d19
     d20
     d21
-    d22)
+    d22
+    d23)
 
 foreach(day ${DAYS})
   add_aoc_day(${day} SOURCES ${day}.cpp)
