@@ -91,5 +91,6 @@
         "generator": "cpp",
         "coroutine": "cpp",
         "stack": "cpp"
-    }
+    },
+    "cmake.useVsDeveloperEnvironment": "always"
 }

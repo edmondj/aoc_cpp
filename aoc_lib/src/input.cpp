@@ -13,6 +13,7 @@ const std::map<std::string, part> str_to_part{
 std::string read_whole_file(const std::filesystem::path &path) {
   constexpr size_t read_size = 4096;
   auto in = std::ifstream(path);
+  in.exceptions(std::ifstream::failbit);
   in.exceptions(std::ifstream::badbit);
 
   std::string out;
