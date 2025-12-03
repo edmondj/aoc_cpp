@@ -90,7 +90,8 @@
         "bitset": "cpp",
         "generator": "cpp",
         "coroutine": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "string_view": "cpp"
     },
     "cmake.useVsDeveloperEnvironment": "always"
 }

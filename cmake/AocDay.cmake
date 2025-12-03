@@ -48,7 +48,10 @@ function(add_aoc_day _YEAR _NAME)
                                                          ${_LIBRARIES})
     target_compile_definitions("${TARGET_NAME}_tests" PRIVATE -DTESTING)
 
-    gtest_discover_tests("${TARGET_NAME}_tests" NO_PRETTY_VALUES)
+    gtest_discover_tests(
+      "${TARGET_NAME}_tests"
+      TEST_PREFIX "${_YEAR}/"
+      NO_PRETTY_VALUES)
   endif()
 
 endfunction()
