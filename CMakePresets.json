@@ -4,7 +4,10 @@
         {
             "name": "base",
             "hidden": true,
-            "generator": "Ninja"
+            "generator": "Ninja",
+            "cacheVariables": {
+                "AOC_2025": "ON"
+            }
         },
         {
             "name": "debug",
