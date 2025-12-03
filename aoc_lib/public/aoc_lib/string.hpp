@@ -9,10 +9,14 @@
 namespace aoc {
 std::string_view trimmed(std::string_view src);
 
+template <typename T> inline auto split(std::string_view src, T &&pattern) {
+  return std::views::split(src, std::forward<T>(pattern)) |
+         std::views::transform(
+             [](auto subrange) { return std::string_view(subrange); });
+}
+
 inline auto lines(std::string_view src) {
-  return std::views::split(src, '\n') |
-         std::views::transform([](auto subrange) {
-           auto line = std::string_view(subrange);
+  return split(src, '\n') | std::views::transform([](std::string_view line) {
            if (line.ends_with('\r')) {
              line.remove_suffix('\r');
            }

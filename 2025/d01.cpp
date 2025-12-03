@@ -1,7 +1,6 @@
 #include <aoc_lib/day_trait.hpp>
 #include <aoc_lib/string.hpp>
 
-#include <print>
 #include <string>
 
 struct d01 {
@@ -26,7 +25,6 @@ struct d01 {
       if (value != 0 && ((value + turn) >= 100 || (value + turn) <= 0)) {
         passed_by_zero += 1;
       }
-      std::println();
       value = (value + turn) % 100;
       if (value < 0) {
         value += 100;
