@@ -93,6 +93,7 @@ template <scalar S> auto point2d_iota(S m, S M, S n, S N) {
 template <scalar S> auto point2d_iota(S M, S N) {
   return point2d_iota(S{}, M, S{}, N);
 }
+
 } // namespace views
 
 } // namespace aoc

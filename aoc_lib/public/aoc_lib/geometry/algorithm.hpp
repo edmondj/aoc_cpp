@@ -28,4 +28,25 @@ S manhattan_distance(const vector<S, M> &vec)
   }(std::make_integer_sequence<S, M>());
 }
 
+namespace adjacent_type {
+struct manhattan_t {};
+constexpr manhattan_t manhattan;
+
+struct euclidean_t {};
+constexpr euclidean_t euclidean;
+} // namespace adjacent_type
+
+template <scalar S>
+auto adjacent(adjacent_type::euclidean_t, point2d<S> center)
+  requires std::is_signed_v<S>
+{
+  static const vector2d<S> directions[] = {
+      {S{0}, S{1}},  {S{1}, S{1}},   {S{1}, S{0}},  {S{1}, S{-1}},
+      {S{0}, S{-1}}, {S{-1}, S{-1}}, {S{-1}, S{0}}, {S{-1}, S{1}}};
+
+  return directions |
+         std::views::transform([center = std::move(center)](vector2d<S> dir) {
+           return center + dir;
+         });
+}
 } // namespace aoc

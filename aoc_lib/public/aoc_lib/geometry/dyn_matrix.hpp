@@ -2,6 +2,7 @@
 
 #include <aoc_lib/geometry/point.hpp>
 
+#include <cassert>
 #include <ranges>
 #include <vector>
 
@@ -9,6 +10,8 @@ namespace aoc {
 
 template <typename T> class dyn_matrix {
 public:
+  using point_t = point2d<size_t>;
+
   dyn_matrix() : m_width(0) {}
 
   dyn_matrix(size_t width, size_t height)
@@ -34,11 +37,17 @@ public:
     m_data.resize(width * height);
   }
 
+  template <std::ranges::input_range R>
+  dyn_matrix(std::from_range_t from_range, R &&lines)
+    requires std::ranges::input_range<std::ranges::range_value_t<R>>
+      : m_width(std::ranges::size(*lines.begin())),
+        m_data(from_range, lines | std::views::join) {}
+
   constexpr bool contains(size_t m, size_t n) const {
     return n < width() && m < height();
   }
 
-  constexpr bool contains(const point2d<size_t> &p) const {
+  constexpr bool contains(const point_t &p) const {
     return contains(p.y(), p.x());
   }
 
@@ -48,8 +57,7 @@ public:
   }
 
   template <typename Self>
-  constexpr decltype(auto) operator[](this Self &&self,
-                                      const point2d<size_t> &p) {
+  constexpr decltype(auto) operator[](this Self &&self, const point_t &p) {
     return std::forward<Self>(self).at(p.y(), p.x());
   }
 
@@ -59,7 +67,7 @@ public:
   }
 
   template <typename Self>
-  constexpr decltype(auto) at(this Self &&self, const point2d<size_t> &p) {
+  constexpr decltype(auto) at(this Self &&self, const point_t &p) {
     return std::forward<Self>(self).at(p.y(), p.x());
   }
 
@@ -74,7 +82,7 @@ public:
     return m_data | std::views::enumerate |
            std::views::transform(
                [width = m_width](std::tuple<size_t, const T &> t)
-                   -> std::tuple<point2d<size_t>, const T &> {
+                   -> std::tuple<point_t, const T &> {
                  size_t i = std::get<0>(t);
                  return {point2d{i % width, i / width}, std::get<1>(t)};
                });
@@ -84,5 +92,9 @@ private:
   size_t m_width = 0;
   std::vector<T> m_data;
 };
+
+template <typename R>
+dyn_matrix(std::from_range_t, R &&) -> dyn_matrix<std::remove_cvref_t<
+    std::ranges::range_value_t<std::ranges::range_value_t<R>>>>;
 
 } // namespace aoc
