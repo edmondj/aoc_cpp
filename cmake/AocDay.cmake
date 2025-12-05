@@ -8,9 +8,8 @@ function(add_aoc_day _YEAR _NAME)
   cmake_parse_arguments(PARSE_ARGV 2 "" "" "OUT_TARGET;OUT_TEST_TARGET"
                         "SOURCES;LIBRARIES")
 
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_NAME}")
-
   set(TARGET_NAME "${_YEAR}_${_NAME}")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${_NAME}")
 
   if(_OUT_TARGET)
     set("${_OUT_TARGET}"
