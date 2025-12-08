@@ -14,6 +14,9 @@ public:
   constexpr point(const point &) = default;
   constexpr point(point &&) = default;
   constexpr point(std::initializer_list<T> init) : m_matrix(init) {}
+  template <typename R>
+  constexpr point(std::from_range_t from_range, R &&range)
+      : m_matrix(from_range, std::forward<R>(range)) {}
   constexpr explicit point(const matrix_type &values) : m_matrix(values) {}
   constexpr explicit point(matrix_type &&values)
       : m_matrix(std::move(values)) {}
@@ -21,7 +24,7 @@ public:
   constexpr point &operator=(const point &) = default;
   constexpr point &operator=(point &&) = default;
 
-  constexpr bool operator==(const point &) const = default;
+  constexpr auto operator<=>(const point &) const = default;
 
   template <typename Self> constexpr auto &&matrix(this Self &&self) {
     return std::forward_like<Self>(self.m_matrix);
@@ -78,6 +81,18 @@ S manhattan_distance(const point<S, M> &l, const point<S, M> &r) {
   return [&l, &r]<size_t... I>(std::index_sequence<I...>) {
     using std::abs;
     return (S{} + ... + abs(r[I] - l[I]));
+  }(std::make_index_sequence<M>());
+}
+
+template <scalar S, size_t M>
+S squared_euclidean_distance(const point<S, M> &l, const point<S, M> &r) {
+  return [&l, &r]<size_t... I>(std::index_sequence<I...>) -> S {
+    auto get_diff = [&l,
+                     &r]<size_t CUR>(std::integral_constant<size_t, CUR>) -> S {
+      auto diff = r[CUR] - l[CUR];
+      return static_cast<S>(diff * diff);
+    };
+    return (S{} + ... + get_diff(std::integral_constant<size_t, I>{}));
   }(std::make_index_sequence<M>());
 }
 

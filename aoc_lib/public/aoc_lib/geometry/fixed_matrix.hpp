@@ -17,11 +17,10 @@ public:
   constexpr fixed_matrix() = default;
   constexpr fixed_matrix(const fixed_matrix &) = default;
   constexpr fixed_matrix(fixed_matrix &&) = default;
-  template <std::ranges::sized_range R>
-  constexpr fixed_matrix(std::from_range_t, R &&r) {
-    std::ranges::copy_n(std::ranges::begin(r),
-                        std::min(std::ranges::size(r), m_data.size()),
-                        m_data.begin());
+  template <std::ranges::range R>
+  constexpr fixed_matrix(std::from_range_t, R &&r) : m_data{} {
+    std::ranges::copy(std::forward<R>(r) | std::views::take(m_data.size()),
+                      m_data.begin());
   }
   constexpr fixed_matrix(std::initializer_list<T> init)
       : fixed_matrix(std::from_range, init) {}
@@ -31,7 +30,7 @@ public:
   constexpr fixed_matrix &operator=(const fixed_matrix &) = default;
   constexpr fixed_matrix &operator=(fixed_matrix &&) = default;
 
-  constexpr bool operator==(const fixed_matrix &) const = default;
+  constexpr auto operator<=>(const fixed_matrix &) const = default;
 
   const array_type &data() const { return m_data; }
 
