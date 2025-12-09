@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+    <Type Name="aoc::point&lt;*, 2&gt;">
+        <DisplayString>{{x={m_matrix.m_data._Elems[0]}, y={m_matrix.m_data._Elems[1]}}}</DisplayString>
+    </Type>
+</AutoVisualizer>

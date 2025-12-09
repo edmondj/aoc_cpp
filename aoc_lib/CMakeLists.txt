@@ -7,6 +7,7 @@ target_sources(
   PUBLIC public/aoc_lib/geometry/algorithm.hpp
          public/aoc_lib/geometry/dimensions.hpp
          public/aoc_lib/geometry/dyn_matrix.hpp
+         public/aoc_lib/geometry/dyn_matrix_format.hpp
          public/aoc_lib/geometry/fixed_matrix.hpp
          public/aoc_lib/geometry/fixed_matrix_format.hpp
          public/aoc_lib/geometry/point.hpp
@@ -27,3 +28,9 @@ target_sources(
 target_include_directories(aoc_lib PUBLIC public/)
 
 target_link_libraries(aoc_lib CLI11)
+
+if(MSVC)
+  set(AOC_LIB_NATVIS "${CMAKE_CURRENT_LIST_DIR}/aoc_lib.natvis")
+  target_sources(aoc_lib PUBLIC ${AOC_LIB_NATVIS})
+  target_link_options(aoc_lib PUBLIC /NATVIS:${AOC_LIB_NATVIS})
+endif()
