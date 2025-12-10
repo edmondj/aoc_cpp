@@ -6,7 +6,7 @@
 # the TESTING macro and linking gtest_main.
 function(add_aoc_day _YEAR _NAME)
   cmake_parse_arguments(PARSE_ARGV 2 "" "" "OUT_TARGET;OUT_TEST_TARGET"
-                        "SOURCES;LIBRARIES")
+                        "SOURCES;LIBRARIES;INCLUDE_DIR")
 
   set(TARGET_NAME "${_YEAR}_${_NAME}")
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${_NAME}")
@@ -22,6 +22,7 @@ function(add_aoc_day _YEAR _NAME)
   target_sources("${TARGET_NAME}" PRIVATE ${_SOURCES})
 
   target_link_libraries("${TARGET_NAME}" PRIVATE aoc_lib aoc_main ${_LIBRARIES})
+  target_include_directories("${TARGET_NAME}" PRIVATE ${_INCLUDE_DIR})
 
   set(INPUT_SOURCE "${CMAKE_SOURCE_DIR}/inputs/${_YEAR}/${_NAME}.txt")
   set(INPUT_DEST "$<TARGET_FILE_DIR:${TARGET_NAME}>/input.txt")
@@ -45,6 +46,7 @@ function(add_aoc_day _YEAR _NAME)
     target_sources("${TARGET_NAME}_tests" PRIVATE ${_SOURCES})
     target_link_libraries("${TARGET_NAME}_tests" PRIVATE aoc_lib gtest_main
                                                          ${_LIBRARIES})
+    target_include_directories("${TARGET_NAME}_tests" PRIVATE ${_INCLUDE_DIR})
     target_compile_definitions("${TARGET_NAME}_tests" PRIVATE -DTESTING)
 
     gtest_discover_tests(
