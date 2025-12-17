@@ -22,7 +22,8 @@ set(DAYS
     d08
     d09
     d10
-    d11)
+    d11
+    d12)
 
 foreach(day ${DAYS})
   set(day_libs "")
