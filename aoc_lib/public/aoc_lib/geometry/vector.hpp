@@ -25,6 +25,15 @@ public:
 
   constexpr bool operator==(const vector &) const = default;
 
+  size_t size() const { return M; }
+
+  template <scalar U>
+  constexpr operator vector<U, M>() const
+    requires std::convertible_to<T, U>
+  {
+    return vector<U, M>(m_matrix);
+  }
+
   template <typename Self> constexpr auto &&matrix(this Self &&self) {
     return std::forward_like<Self>(self.m_matrix);
   }
@@ -74,6 +83,12 @@ public:
   }
 
   template <typename U>
+  friend constexpr auto operator/(const vector &l, const U &r) {
+    auto values = l.matrix() / r;
+    return vector<decltype(values)::value_type, M>(std::move(values));
+  }
+
+  template <typename U>
   friend constexpr auto operator+(const vector &l, const point<U, M> &r) {
     auto values = l.matrix() + r.matrix();
     return point<decltype(values)::value_type, M>(std::move(values));
@@ -101,6 +116,12 @@ public:
   friend constexpr auto operator*(const fixed_matrix<U, M, M> &l,
                                   const vector &r) {
     auto values = l * r.matrix();
+    return vector<decltype(values)::value_type, M>(std::move(values));
+  }
+
+  template <typename U>
+  friend constexpr auto operator-(const vector &l, const vector<U, M> &r) {
+    auto values = l.matrix() - r.matrix();
     return vector<decltype(values)::value_type, M>(std::move(values));
   }
 
@@ -135,6 +156,12 @@ point<T, M> &operator-=(point<T, M> &l, const vector<U, M> &r) {
   return l;
 }
 
+template <typename T, std::size_t M, typename U>
+vector<T, M> &operator+=(vector<T, M> &l, const vector<U, M> &r) {
+  l.matrix() += r.matrix();
+  return l;
+}
+
 template <typename T, std::size_t M>
 constexpr auto amplitude(const vector<T, M> &v)
   requires(M > 0)
@@ -154,6 +181,13 @@ template <typename T, std::size_t M> constexpr auto abs(const vector<T, M> &v) {
     using std::abs;
     return abs(t);
   }));
+}
+
+template <size_t I, typename T, size_t M>
+auto get(const vector<T, M> &v)
+  requires(I < M)
+{
+  return v.at(I);
 }
 
 } // namespace aoc

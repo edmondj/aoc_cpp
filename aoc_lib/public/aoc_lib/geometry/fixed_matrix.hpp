@@ -32,7 +32,9 @@ public:
 
   constexpr auto operator<=>(const fixed_matrix &) const = default;
 
-  const array_type &data() const { return m_data; }
+  template <typename Self> auto data(this Self &&self) {
+    return std::forward_like<Self>(self.m_data);
+  }
 
   template <typename F>
   constexpr auto transform(F &&func) const
@@ -47,7 +49,7 @@ public:
   constexpr operator fixed_matrix<U, M, N>() const
     requires std::convertible_to<T, U>
   {
-    return transform([](const T &v) -> U { return v; });
+    return transform([](const T &v) -> U { return static_cast<U>(v); });
   }
 
   template <typename Self>

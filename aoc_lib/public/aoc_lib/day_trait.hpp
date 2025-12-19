@@ -41,8 +41,8 @@ concept day_trait = day_with_part1<T> || day_with_run<T>;
 
 template <typename T>
 concept day_run_result = requires(T t) {
-  std::get<0>(t);
-  std::get<1>(t);
+  get<0>(t);
+  get<1>(t);
 };
 
 template <day_with_part1 Trait> auto part1(converted_input<Trait> input) {
@@ -53,7 +53,7 @@ template <day_with_run Trait> auto part1(converted_input<Trait> input) {
   auto res = Trait::run(input);
   static_assert(day_run_result<decltype(res)>,
                 "Result of run must be a tuple like type of size >= 2");
-  return std::get<0>(res);
+  return get<0>(res);
 }
 
 template <typename Trait>
@@ -71,7 +71,7 @@ template <day_with_run Trait> auto part2(converted_input<Trait> input) {
   auto res = Trait::run(input);
   static_assert(day_run_result<decltype(res)>,
                 "Result of run must be a tuple like type of size >= 2");
-  return std::get<1>(res);
+  return get<1>(res);
 }
 
 template <typename Trait>
